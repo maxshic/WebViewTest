@@ -15,6 +15,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.webkit.SslErrorHandler;
+import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
@@ -42,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
         webview.getSettings().setJavaScriptEnabled(true);
         webview.getSettings().setDomStorageEnabled(true);
         webview.getSettings().setJavaScriptCanOpenWindowsAutomatically(true);
-        webview.getSettings().setSupportMultipleWindows(true);
+        webview.getSettings().setSupportMultipleWindows(false);
         webview.getSettings().setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
         webview.getSettings().setAllowFileAccess(true);
         webview.setWebViewClient(new WebViewClient(){
@@ -81,6 +82,7 @@ public class MainActivity extends AppCompatActivity {
                         return true;
                     }
                 }catch(Exception e){
+                    Log.e("exception", e.toString());
                     return false;
                 }
 
@@ -105,16 +107,27 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onCreateWindow(WebView view, boolean isDialog, boolean isUserGesture, Message resultMsg) {
                 Log.e("打开", "新页面");
+                Log.e("url", webview.getUrl());
                 try {
-                    WebView.HitTestResult result = webview.getHitTestResult();
-                    String data = result.getExtra();
-                    Log.e("打开", data);
+//                    WebView.HitTestResult result = webview.getHitTestResult();
+//                    String data = result.getExtra();
+
+                    if (webview.getHitTestResult().getType() == WebView.HitTestResult.SRC_ANCHOR_TYPE
+                            || webview.getHitTestResult().getType() == WebView.HitTestResult.SRC_IMAGE_ANCHOR_TYPE) {
+                        Log.e("打开", webview.getHitTestResult().getExtra());
+                    }
                 }catch(Exception e){
                     Log.e("exception", e.toString());
                 }
 
                 return true;
             }
+
+            @Override
+            public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback, FileChooserParams fileChooserParams) {
+                return super.onShowFileChooser(webView, filePathCallback, fileChooserParams);
+            }
+
         });
         webview.setOnKeyListener(new View.OnKeyListener(){
 
@@ -128,7 +141,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 //        String url = "https://m.shark-online.io/#/";
-//        String url = "http://192.168.31.148:5500/index.html";
+//        String url = "http://10.72.0.39:5500/index.html";
         String url = "https://qa.aohuahealth.com/static/h5/core.html";
 //        String url = "https://wx.tenpay.com/cgi-bin/mmpayweb-bin/checkmweb?prepay_id=wx18004654542642af4bd357d38c7bad0000&package=1032438673";
 
